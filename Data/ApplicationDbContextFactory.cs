@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +9,21 @@ using System.Threading.Tasks;
 
 namespace Data
 {
-	public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
+	public class ApplicationDbContextFactory
 	{
-		public ApplicationDbContext CreateDbContext(string[] args)
+		private readonly IConfiguration _configuration;
+
+		public ApplicationDbContextFactory(IConfiguration configuration)
+		{
+			_configuration = configuration;
+		}
+
+		public ApplicationDbContext CreateDbContext()
 		{
 			var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-			optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=TaskAPIDb;Trusted_Connection=true;MultipleActiveResultSets=true");
+			var connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+			optionsBuilder.UseSqlServer(connectionString);
 
 			return new ApplicationDbContext(optionsBuilder.Options);
 		}

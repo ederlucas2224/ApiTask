@@ -9,6 +9,11 @@ namespace Middleware
 {
 	public static class ExceptionHandlingMiddlewareExtensions
 	{
+		/// <summary>
+		/// Metodo de excepcion
+		/// </summary>
+		/// <param name="builder"></param>
+		/// <returns></returns>
 		public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder builder)
 		{
 			return builder.UseMiddleware<ExceptionHandlingMiddleware>();

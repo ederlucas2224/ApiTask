@@ -21,7 +21,11 @@ namespace Middleware
 			_logger = logger;
 			_env = env;
 		}
-
+		/// <summary>
+		/// Invocacion Asyncrona
+		/// </summary>
+		/// <param name="context"></param>
+		/// <returns></returns>
 		public async Task InvokeAsync(HttpContext context)
 		{
 			try
@@ -34,7 +38,12 @@ namespace Middleware
 				await HandleExceptionAsync(context, ex);
 			}
 		}
-
+		/// <summary>
+		/// Metodo para excepcion
+		/// </summary>
+		/// <param name="context"></param>
+		/// <param name="exception"></param>
+		/// <returns></returns>
 		private async Task HandleExceptionAsync(HttpContext context, Exception exception)
 		{
 			context.Response.ContentType = "application/json";
@@ -60,7 +69,9 @@ namespace Middleware
 		}
 	}
 
-	// Excepción para validaciones
+	/// <summary>
+	/// Valida excepcion
+	/// </summary>
 	public class ValidationException : Exception
 	{
 		public ValidationException(string message) : base(message) { }

@@ -8,6 +8,10 @@ namespace Middleware
 {
 	public class BusinessException : Exception
 	{
+		/// <summary>
+		/// Excepcion controlada
+		/// </summary>
+		/// <param name="message"></param>
 		public BusinessException(string message) : base(message) { }
 	}
 }

@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Model
 {
+	/// <summary>
+	/// Modelo para creacion de Tareas
+	/// </summary>
 	public class CreateTaskRequest
 	{
 		[Required(ErrorMessage = "El título es requerido")]

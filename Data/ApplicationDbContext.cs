@@ -12,12 +12,19 @@ namespace Data
 {
 	public class ApplicationDbContext : DbContext
 	{
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="options"></param>
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
 		{
 		}
 
 		public DbSet<TaskItem> Tasks { get; set; }
-
+		/// <summary>
+		/// Metodo para crear el modelado
+		/// </summary>
+		/// <param name="modelBuilder"></param>
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
 			base.OnModelCreating(modelBuilder);

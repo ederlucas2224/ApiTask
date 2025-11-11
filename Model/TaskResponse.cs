@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Model
 {
+	/// <summary>
+	/// Response de las tareas
+	/// </summary>
 	public class TaskResponse
 	{
 		public int Id { get; set; }

@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Model
 {
+	/// <summary>
+	/// Actualizar una tarea
+	/// </summary>
 	public class UpdateTaskRequest
 	{
 		[Required(ErrorMessage = "El título es requerido")]

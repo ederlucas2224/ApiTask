@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Model
 {
+	/// <summary>
+	/// Modelo de Tareas
+	/// </summary>
 	public class TaskItem
 	{
 		public int Id { get; set; }
@@ -14,7 +17,9 @@ namespace Model
 		public TaskStatus Status { get; set; }
 		public DateTime CreationDate { get; set; }
 	}
-
+	/// <summary>
+	/// Estatus de tareas
+	/// </summary>
 	public enum TaskStatus
 	{
 		Pending,

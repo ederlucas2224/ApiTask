@@ -22,6 +22,8 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+.user
+.bin
 
 # .NET Core
 project.lock.json
@@ -52,3 +54,10 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+*.db
+/.vs/ProjectEvaluation
+/.vs/Task/CopilotIndices/17.14.1368.60722
+/.vs/Task/DesignTimeBuild
+/.vs/Task/FileContentIndex
+/.vs/Task/v17
+*.user

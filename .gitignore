@@ -61,3 +61,4 @@ nunit-*.xml
 /.vs/Task/FileContentIndex
 /.vs/Task/v17
 *.user
+/.vs/Task/config

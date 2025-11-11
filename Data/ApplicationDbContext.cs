@@ -21,6 +21,7 @@ namespace Data
 		}
 
 		public DbSet<TaskItem> Tasks { get; set; }
+
 		/// <summary>
 		/// Metodo para crear el modelado
 		/// </summary>
@@ -29,16 +30,25 @@ namespace Data
 		{
 			base.OnModelCreating(modelBuilder);
 
+			// Mapear la entidad TaskItem a la tabla Task
 			modelBuilder.Entity<TaskItem>(entity =>
 			{
+				// Especificar el nombre de la tabla en la base de datos
+				entity.ToTable("Task");
+
 				entity.HasKey(t => t.Id);
+
+				entity.Property(t => t.Id)
+					.ValueGeneratedOnAdd() // IDENTITY(1,1)
+					.IsRequired();
 
 				entity.Property(t => t.Title)
 					.IsRequired()
 					.HasMaxLength(255);
 
 				entity.Property(t => t.Description)
-					.HasMaxLength(1000);
+					.HasColumnType("NVARCHAR(MAX)") // Especificar el tipo exacto
+					.IsRequired(false); // NULL
 
 				entity.Property(t => t.Status)
 					.IsRequired()
@@ -46,7 +56,11 @@ namespace Data
 					.HasMaxLength(20);
 
 				entity.Property(t => t.CreationDate)
-					.IsRequired();
+					.IsRequired()
+					.HasDefaultValueSql("GETDATE()"); // DEFAULT GETDATE()
+
+				// Configurar el check constraint para Status (opcional pero recomendado)
+				entity.HasCheckConstraint("CK_Task_Status", "Status IN ('Pending', 'InProgress', 'Completed')");
 
 				// Seed data para pruebas
 				entity.HasData(

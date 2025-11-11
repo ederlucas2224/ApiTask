@@ -16,9 +16,9 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Entity Framework Core con Base de Datos en Memoria
+// En Program.cs o Startup.cs
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-	options.UseInMemoryDatabase("TaskAPIDb"));
+	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Inyección de Dependencias
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Model
+{
+	/// <summary>
+	/// Actualizar una tarea
+	/// </summary>
+	public class UpdateTaskRequest
+	{
+		[StringLength(255, MinimumLength = 1, ErrorMessage = "El título debe tener entre 1 y 255 caracteres")]
+		public string? Title { get; set; } = string.Empty;
+
+		[StringLength(1000, ErrorMessage = "La descripción no puede exceder 1000 caracteres")]
+		public string? Description { get; set; }
+
+		[EnumDataType(typeof(TaskStatus), ErrorMessage = "Estado inválido")]
+		public TaskStatus? Status { get; set; }
+	}
+}

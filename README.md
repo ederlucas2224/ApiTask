@@ -48,8 +48,15 @@ Api/
 ├── Model/              # Entidades del dominio
 ├── Middleware/         # Middleware personalizado
 └── Program.cs          # Configuración e inyección de dependencias
-🔧 Configuración
-1. Configuración de Base de Datos
+🚀 Cómo Ejecutar el Proyecto
+1. Clonar el Repositorio
+bash
+git clone <url-del-repositorio>
+cd Api
+2. Restaurar Dependencias
+bash
+dotnet restore
+3. Configurar Base de Datos
 La aplicación usa LocalDB por defecto. La cadena de conexión se configura en appsettings.json:
 
 json
@@ -58,13 +65,25 @@ json
     "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=TaskAPIDb;Trusted_Connection=true;MultipleActiveResultSets=true"
   }
 }
-2. Migraciones de Base de Datos
+4. Ejecutar Migraciones
 bash
-# Crear migración
+# Desde la consola de Package Manager en Visual Studio
 Add-Migration InitialCreate
-
-# Aplicar migración
 Update-Database
+
+# O desde terminal
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+5. Ejecutar la Aplicación
+bash
+dotnet run
+6. Acceder a la API
+API: https://localhost:7000/api/tasks
+
+Swagger UI: https://localhost:7000/swagger
+
+Health Check: https://localhost:7000/health
+
 📚 Endpoints de la API
 Tareas
 Método	Endpoint	Descripción
@@ -112,6 +131,69 @@ UpdateTaskRequest: Para actualización parcial
 
 TaskResponse: Respuesta estandarizada
 
+🏛️ Decisiones de Diseño Arquitectónico
+1. Clean Architecture
+Justificación: Separación clara de responsabilidades y independencia del framework.
+
+Domain Layer (Model): Entidades puras sin dependencias externas
+
+Application Layer (Service): Lógica de negocio y casos de uso
+
+Infrastructure Layer (Data/Repository): Acceso a datos y implementaciones externas
+
+Presentation Layer (Controllers): Manejo de HTTP y DTOs
+
+2. Repository Pattern + Unit of Work
+Justificación: Abstracción del acceso a datos y gestión transaccional.
+
+csharp
+// Ventajas implementadas:
+- Desacoplamiento de Entity Framework
+- Fácil testing con mocks
+- Reutilización de operaciones CRUD
+- Gestión consistente de transacciones
+3. Separación en Capas
+Justificación: Mantenibilidad y escalabilidad.
+
+text
+Controller → Service → Repository → DbContext
+Controllers: Solo manejan HTTP, sin lógica de negocio
+
+Services: Contienen reglas de negocio y coordinación
+
+Repositories: Solo acceso a datos, sin lógica
+
+DbContext: Configuración de EF Core
+
+4. DTOs (Data Transfer Objects)
+Justificación: Separación entre modelos de dominio y modelos de API.
+
+Seguridad: No exponer entidades internas directamente
+
+Flexibilidad: Evolución independiente de API y dominio
+
+Performance: Control estricto de datos transferidos
+
+5. Inyección de Dependencias
+Justificación: Principio de inversión de dependencias (DIP).
+
+csharp
+// Configuración centralizada en Program.cs
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+6. Manejo Global de Excepciones
+Justificación: Consistencia en respuestas de error.
+
+csharp
+// Middleware personalizado
+app.UseGlobalExceptionHandler();
+7. Patrón CQRS Ligero
+Justificación: Separación entre operaciones de lectura y escritura.
+
+Queries: GetAllAsync, GetByIdAsync, GetTasksByStatusAsync
+
+Commands: CreateTaskAsync, UpdateTaskAsync, DeleteTaskAsync
+
 🔄 Patrones Implementados
 Repository Pattern
 Abstracción del acceso a datos
@@ -128,6 +210,9 @@ Inyección nativa de ASP.NET Core
 
 Configuración centralizada en Program.cs
 
+Factory Pattern
+IDesignTimeDbContextFactory para configuraciones de EF Core
+
 🧪 Testing y Calidad
 Validaciones: A nivel de modelo y negocio
 
@@ -137,21 +222,14 @@ Logging: Registro estructurado de operaciones
 
 Transacciones: Rollback automático en errores
 
-🚀 Ejecución
-Clonar el repositorio
+🔒 Características de Seguridad
+Validación de datos de entrada
 
-Restaurar paquetes NuGet
+Manejo seguro de excepciones
 
-Ejecutar migraciones de base de datos
+Transacciones atómicas
 
-Ejecutar la aplicación
-
-bash
-dotnet restore
-dotnet ef database update
-dotnet run
-La API estará disponible en: https://localhost:7000
-Documentación Swagger: https://localhost:7000/swagger
+Logging de operaciones críticas
 
 📊 Estado de Tareas
 Los estados disponibles son:
@@ -161,15 +239,6 @@ Pending: Tarea pendiente
 InProgress: Tarea en progreso
 
 Completed: Tarea completada
-
-🔒 Características de Seguridad
-Validación de datos de entrada
-
-Manejo seguro de excepciones
-
-Transacciones atómicas
-
-Logging de operaciones críticas
 
 🤝 Contribución
 Fork del proyecto

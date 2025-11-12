@@ -1,4 +1,5 @@
 ﻿using Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Middleware;
 using Model;
@@ -18,6 +19,12 @@ namespace Service
 			_logger = logger;
 		}
 
+		/// <summary>
+		/// Crea una nueva tarea en el sistema después de validar que no exista una con el mismo título
+		/// </summary>
+		/// <param name="request">Datos para la creación de la tarea</param>
+		/// <returns>Respuesta con los datos de la tarea creada</returns>
+		/// <exception cref="BusinessException">Se lanza cuando ya existe una tarea con el mismo título</exception>
 		public async Task<TaskResponse> CreateTaskAsync(CreateTaskRequest request)
 		{
 			try
@@ -51,12 +58,22 @@ namespace Service
 			}
 		}
 
+		/// <summary>
+		/// Obtiene todas las tareas del sistema ordenadas por fecha de creación descendente
+		/// </summary>
+		/// <returns>Lista de todas las tareas disponibles</returns>
 		public async Task<IEnumerable<TaskResponse>> GetAllTasksAsync()
 		{
 			var tasks = await _unitOfWork.Tasks.GetAllAsync();
 			return tasks.Select(MapToTaskResponse);
 		}
 
+		/// <summary>
+		/// Obtiene una tarea específica por su identificador único
+		/// </summary>
+		/// <param name="id">Identificador de la tarea a buscar</param>
+		/// <returns>Datos de la tarea encontrada</returns>
+		/// <exception cref="TaskNotFoundException">Se lanza cuando no se encuentra la tarea con el ID especificado</exception>
 		public async Task<TaskResponse?> GetTaskByIdAsync(int id)
 		{
 			var task = await _unitOfWork.Tasks.GetByIdAsync(id);
@@ -67,39 +84,41 @@ namespace Service
 			return MapToTaskResponse(task);
 		}
 
+		/// <summary>
+		/// Actualiza una tarea existente permitiendo actualizar solo los campos proporcionados
+		/// </summary>
+		/// <param name="id">Identificador de la tarea a actualizar</param>
+		/// <param name="request">Datos parciales para la actualización</param>
+		/// <returns>Respuesta con los datos actualizados de la tarea</returns>
+		/// <exception cref="NotFoundException">Se lanza cuando no se encuentra la tarea con el ID especificado</exception>
 		public async Task<TaskResponse> UpdateTaskAsync(int id, UpdateTaskRequest request)
 		{
-			try
-			{
-				await _unitOfWork.BeginTransactionAsync();
+			await _unitOfWork.BeginTransactionAsync();
+			var existingTask = await _unitOfWork.Tasks.GetByIdAsync(id);
+			if (existingTask == null)
+				throw new NotFoundException($"Task with ID {id} not found");
 
-				var existingTask = await _unitOfWork.Tasks.GetByIdAsync(id);
-				if (existingTask == null)
-					throw new TaskNotFoundException(id);
+			// Actualizar solo los campos que no son nulos
+			if (request.Title != null)
+				existingTask.Title = request.Title;
 
-				// Validación de negocio adicional
-				if (await _unitOfWork.Tasks.ExistsAsync(t => t.Title == request.Title.Trim() && t.Id != id))
-					throw new BusinessException("Ya existe otra tarea con el mismo título");
+			if (request.Description != null)
+				existingTask.Description = request.Description;
 
-				existingTask.Title = request.Title.Trim();
-				existingTask.Description = request.Description?.Trim();
-				existingTask.Status = request.Status;
+			if (request.Status.HasValue)
+				existingTask.Status = request.Status.Value;
 
-				var updatedTask = await _unitOfWork.Tasks.UpdateAsync(existingTask);
-				await _unitOfWork.SaveChangesAsync();
-				await _unitOfWork.CommitTransactionAsync();
-
-				_logger.LogInformation("Tarea actualizada exitosamente con ID: {TaskId}", id);
-
-				return MapToTaskResponse(updatedTask);
-			}
-			catch (Exception)
-			{
-				await _unitOfWork.RollbackTransactionAsync();
-				throw;
-			}
+			await _unitOfWork.SaveChangesAsync();
+			await _unitOfWork.CommitTransactionAsync();
+			return MapToTaskResponse(existingTask);
 		}
 
+		/// <summary>
+		/// Elimina una tarea del sistema por su identificador único
+		/// </summary>
+		/// <param name="id">Identificador de la tarea a eliminar</param>
+		/// <returns>True si la tarea fue eliminada exitosamente, False si no se encontró la tarea</returns>
+		/// <exception cref="TaskNotFoundException">Se lanza cuando no se encuentra la tarea con el ID especificado</exception>
 		public async Task<bool> DeleteTaskAsync(int id)
 		{
 			try
@@ -127,6 +146,11 @@ namespace Service
 			}
 		}
 
+		/// <summary>
+		/// Mapea una entidad TaskItem a un objeto TaskResponse para la respuesta API
+		/// </summary>
+		/// <param name="task">Entidad de tarea a mapear</param>
+		/// <returns>Objeto de respuesta formateado para la API</returns>
 		private static TaskResponse MapToTaskResponse(TaskItem task)
 		{
 			return new TaskResponse

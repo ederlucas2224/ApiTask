@@ -12,15 +12,13 @@ namespace Model
 	/// </summary>
 	public class UpdateTaskRequest
 	{
-		[Required(ErrorMessage = "El título es requerido")]
 		[StringLength(255, MinimumLength = 1, ErrorMessage = "El título debe tener entre 1 y 255 caracteres")]
-		public string Title { get; set; } = string.Empty;
+		public string? Title { get; set; } = string.Empty;
 
 		[StringLength(1000, ErrorMessage = "La descripción no puede exceder 1000 caracteres")]
 		public string? Description { get; set; }
 
-		[Required(ErrorMessage = "El estado es requerido")]
 		[EnumDataType(typeof(TaskStatus), ErrorMessage = "Estado inválido")]
-		public TaskStatus Status { get; set; }
+		public TaskStatus? Status { get; set; }
 	}
 }

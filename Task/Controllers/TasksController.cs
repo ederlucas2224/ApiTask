@@ -18,7 +18,7 @@ namespace Task.Controllers
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<TaskResponse>> CreateTask(CreateTaskRequest request)
+		public async Task<ActionResult<TaskResponse>> CreateTask([FromQuery] CreateTaskRequest request)
 		{
 			var task = await _taskService.CreateTaskAsync(request);
 			return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
@@ -39,14 +39,16 @@ namespace Task.Controllers
 		}
 
 		[HttpPut("{id}")]
-		public async Task<ActionResult<TaskResponse>> UpdateTask(int id, UpdateTaskRequest request)
+		public async Task<ActionResult<TaskResponse>> UpdateTask(
+			[FromRoute] int id,
+			[FromQuery] UpdateTaskRequest request)
 		{
 			var task = await _taskService.UpdateTaskAsync(id, request);
 			return Ok(task);
 		}
 
 		[HttpDelete("{id}")]
-		public async Task<ActionResult> DeleteTask(int id)
+		public async Task<ActionResult> DeleteTask([FromRoute] int id)
 		{
 			await _taskService.DeleteTaskAsync(id);
 			return NoContent();
